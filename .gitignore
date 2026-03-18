@@ -1,8 +1,8 @@
 phowhisper_local_model\model.safetensors
 .venv
-.vscode
-__pycache__/
+.vscode__pycache__/
 *.pyc
 .env
 pyannote_local_model
 phowhisper_local_model
+.vscode
