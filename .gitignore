@@ -7,3 +7,5 @@ pyannote_local_model
 phowhisper_local_model
 .vscode
 audio/
+raw_audio
+filtered_signal.wav
