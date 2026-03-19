@@ -10,8 +10,6 @@ OUTPUT_BUCKET = "voice2text-bucket"
 OUTPUT_PREFIX = "transcripts/"
 HASH_TABLE_KEY = "hash_table.json"
 
-LANGUAGE_CODE = "vi-VN"
-
 
 def _hash(key, size=16):
     return sum(ord(c) for c in key) % size
@@ -41,6 +39,7 @@ def find_job_name(table, s3_key: str):
     value = get_from_table(table, s3_key)
     if value:
         return value
+
     basename = s3_key.split("/")[-1]
     value = get_from_table(table, basename)
     if value:
@@ -100,7 +99,6 @@ def lambda_handler(event, context):
 
             print(f"Processing: s3://{bucket}/{key}")
 
-            # chỉ xử lý file trong raw_audio/
             if not key.startswith("raw_audio/"):
                 print(f"Skip non-raw-audio file: s3://{bucket}/{key}")
                 continue
@@ -124,7 +122,7 @@ def lambda_handler(event, context):
 
             resp = transcribe.start_transcription_job(
                 TranscriptionJobName=job_name,
-                LanguageCode=LANGUAGE_CODE,
+                IdentifyLanguage=True,
                 MediaFormat=media_format,
                 Media={"MediaFileUri": media_uri},
                 OutputBucketName=OUTPUT_BUCKET,

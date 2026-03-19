@@ -23,7 +23,6 @@ class HashTable:
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
             if error_code in ("NoSuchKey", "404"):
-                # chưa có object thì giữ table rỗng
                 self._save()
             else:
                 raise
@@ -31,7 +30,7 @@ class HashTable:
     def _save(self) -> None:
         s3.put_object(
             Bucket=self.bucket,
-            Key=self.key,   # luôn cùng một key
+            Key=self.key,
             Body=json.dumps(self.table, ensure_ascii=False).encode("utf-8"),
             ContentType="application/json"
         )
