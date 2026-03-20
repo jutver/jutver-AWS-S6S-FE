@@ -1,9 +1,8 @@
 import boto3
-from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 import os
-from chunking import split_chunks
-from embedding_convert import embed_texts
+from . import chunking, embedding_convert
+
 
 load_dotenv(".env")
 
@@ -13,19 +12,26 @@ REGION = os.getenv("REGION")
 
 s3vectors = boto3.client("s3vectors", region_name=REGION)
 
-
 def ingest_document(raw_id, text_id, text: str):
     raw_id = str(raw_id)
     text_id = str(text_id)
 
-    chunks = split_chunks(text)
-    embeddings = embed_texts(chunks)
+    chunks = chunking.split_chunks(text)
+    embeddings = embedding_convert.embed_texts(chunks)
 
-    vectors = []
+    if len(chunks) != len(embeddings):
+        raise ValueError(
+            f"chunks ({len(chunks)}) != embeddings ({len(embeddings)})"
+        )
+
+    batch = []
+    responses = []
+    total = 0
+
     for i, (chunk, emb) in enumerate(zip(chunks, embeddings), start=1):
-        vectors.append({
+        batch.append({
             "key": f"{raw_id}-chunk-{i}",
-            "data": {"float32": emb},
+            "data": {"float32": [float(x) for x in emb]},
             "metadata": {
                 "raw_id": raw_id,
                 "text_id": text_id,
@@ -34,19 +40,53 @@ def ingest_document(raw_id, text_id, text: str):
             }
         })
 
-    return s3vectors.put_vectors(
-        vectorBucketName=VECTOR_BUCKET,
-        indexName=INDEX_NAME,
-        vectors=vectors
-    )
+        if len(batch) == 500:
+            responses.append(
+                s3vectors.put_vectors(
+                    vectorBucketName=VECTOR_BUCKET,
+                    indexName=INDEX_NAME,
+                    vectors=batch
+                )
+            )
+            total += len(batch)
+            batch = []
 
+    if batch:
+        responses.append(
+            s3vectors.put_vectors(
+                vectorBucketName=VECTOR_BUCKET,
+                indexName=INDEX_NAME,
+                vectors=batch
+            )
+        )
+        total += len(batch)
 
-def search_with_filter(question: str, raw_id, text_id, top_k: int = 3):
+    return {
+        "inserted_vectors": total,
+        "batches": len(responses),
+        "responses": responses
+    }
+
+def search_with_filter(question: str, raw_id, text_id = None, top_k: int = 3):
+    query_vec = embedding_convert.embed_texts([question])[0]
     raw_id = str(raw_id)
+    if not text_id:
+        return s3vectors.query_vectors(
+                vectorBucketName=VECTOR_BUCKET,
+                indexName=INDEX_NAME,
+                queryVector={"float32": query_vec},
+                topK=top_k,
+                returnDistance=True,
+                returnMetadata=True,
+                filter={
+                    "$and": [
+                        {"raw_id": {"$eq": raw_id}},
+                        {"text_id": {"$eq": text_id}},
+                    ]
+        
+        })
     text_id = str(text_id)
-
-    query_vec = embed_texts([question])[0]
-
+    
     return s3vectors.query_vectors(
         vectorBucketName=VECTOR_BUCKET,
         indexName=INDEX_NAME,
@@ -63,7 +103,7 @@ def search_with_filter(question: str, raw_id, text_id, top_k: int = 3):
     )
 
 def search_no_filter(question: str, top_k: int = 3):
-        query_vec = embed_texts([question])[0]
+        query_vec = embedding_convert.embed_texts([question])[0]
         return s3vectors.query_vectors(
             vectorBucketName=VECTOR_BUCKET,
             indexName=INDEX_NAME,

@@ -23,13 +23,11 @@ class raw_audio():
             object_name = self.object_name
         # Initialize the S3 client
         try:
-            # ExtraArgs allows you to set metadata like ContentType
-            # This is useful so browsers play the audio instead of downloading it
             callback = process_percent.ProgressPercentage(self.file_name)
             self.client.upload_file(
                 self.file_name, 
                 self.bucket, 
-                self.object_name,
+                object_name,
                 Callback = callback,
                 ExtraArgs={'ContentType': self.content_type}
             )
