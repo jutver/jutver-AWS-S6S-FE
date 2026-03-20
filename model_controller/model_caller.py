@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv(".env")
 
-def get_model_response(message, api_key = os.getenv("GEMINI_API_KEY"), model = "gemini/gemini-flash-lite-latest"):
+def get_model_response(message, api_key = os.getenv("API_KEY"), model = "gemini/gemini-flash-lite-latest"):
     resp = completion(
         model= model,
         messages= message,
