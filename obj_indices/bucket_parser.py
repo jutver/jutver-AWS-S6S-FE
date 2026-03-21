@@ -81,3 +81,41 @@ class HashTable:
                 self._save()
                 return True
         return False
+
+class UserIndex:
+    def __init__(self, bucket, key="user_index.json"):
+        self.bucket = bucket
+        self.key = key
+        self.stacks = {}
+
+        self._load_if_exists()
+
+    def _load_if_exists(self) -> None:
+        try:
+            resp = s3.get_object(Bucket=self.bucket, Key=self.key)
+            self.stacks = json.loads(resp["Body"].read().decode("utf-8"))
+        except ClientError as e:
+            error_code = e.response["Error"]["Code"]
+            if error_code in ("NoSuchKey", "404"):
+                self._save()
+            else:
+                raise
+
+    def _save(self) -> None:
+        s3.put_object(
+            Bucket=self.bucket,
+            Key=self.key,
+            Body=json.dumps(self.stacks, ensure_ascii=False).encode("utf-8"),
+            ContentType="application/json"
+        )
+
+    def push(self, user_id: str, chatid: str) -> None:
+        if user_id not in self.stacks:
+            self.stacks[user_id] = []
+        
+        if chatid not in self.stacks[user_id]:
+            self.stacks[user_id].append(chatid)
+            self._save()
+
+    def get_stack(self, user_id: str) -> list:
+        return self.stacks.get(user_id, [])

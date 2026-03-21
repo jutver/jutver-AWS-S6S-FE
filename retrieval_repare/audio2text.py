@@ -18,7 +18,7 @@ def voice_transcript(file_name, bucket, client, raw_bucket_folder, table):
     raw_controller.pushing_to_bucket()
     meta = {
         "raw_id": obj_id,
-        "text_id": f"{transcript_obj}.json",
+        "text_id": transcript_obj,
             }
     return meta
 
