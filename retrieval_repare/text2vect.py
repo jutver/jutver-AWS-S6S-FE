@@ -11,7 +11,7 @@ text_bucket_folder = os.getenv("TEXT_BUCKET_FOLDER")
 bucket = os.getenv("BUCKET_NAME")
 
 def get_text(text_id): 
-    key = f"{text_bucket_folder}/{text_id}"
+    key = f"{text_bucket_folder}/{text_id}.json"
     try:
         resp = s3.get_object(Bucket=bucket, Key=key)
         return resp["Body"].read().decode("utf-8")

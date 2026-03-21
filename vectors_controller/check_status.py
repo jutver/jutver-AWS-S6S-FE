@@ -1,15 +1,18 @@
 import time
 import boto3
 from botocore.exceptions import ClientError
+from dotenv import load_dotenv
+import os
 
-REGION = "ap-southeast-1"
-JOB_NAME = "voice-e618f72d7ce8aebfbf195018b3ba4b95a67c0c197454bc7f49b1bab01825cf44"
+load_dotenv(".env")
 
+
+REGION = os.getenv("REGION")
 transcribe = boto3.client("transcribe", region_name=REGION)
 
 def wait_for_transcription(job_name: str, interval_seconds: int = 10, timeout_seconds: int = 3600):
     start = time.time()
-
+    time.sleep(10)
     while True:
         if time.time() - start > timeout_seconds:
             raise TimeoutError(f"Timeout waiting for transcription job: {job_name}")
@@ -35,7 +38,3 @@ def wait_for_transcription(job_name: str, interval_seconds: int = 10, timeout_se
             raise RuntimeError(f"Transcription failed: {reason}")
 
         time.sleep(interval_seconds)
-
-if __name__ == "__main__":
-    uri = wait_for_transcription(JOB_NAME)
-    print("Done:", uri)

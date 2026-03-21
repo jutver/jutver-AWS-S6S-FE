@@ -2,8 +2,8 @@ from dotenv import load_dotenv
 import os
 from vectors_controller import vectors
 from retrieval_repare import audio2text, text2vect
-from obj_indices import bucket_parser
 import time
+import vectors_controller.check_status as check_status
 
 load_dotenv(".env")
 
@@ -21,9 +21,9 @@ if __name__ == "__main__":
     meta = audio2text.voice_transcript(file_name, bucket, client, raw_bucket_folder, table)
     raw_id = meta["raw_id"]
     text_id = meta["text_id"]
-    time.sleep(100)
+    uri = check_status.wait_for_transcription(text_id, interval_seconds= 20, timeout_seconds= 3600)
     text2vect.vect_push(raw_id= raw_id, text_id= text_id)
-    query = vectors.search_with_filter("Thư ký cần làm gì?", raw_id, text_id)
+    query = vectors.search_comprehensive("Thư ký cần làm gì?", raw_id, text_id)
     print(vectors.pretty_results(query))
 
 
