@@ -1,31 +1,38 @@
 from dotenv import load_dotenv
 import os
-from vectors_controller import vectors
-from retrieval_repare import audio2text, text2vect
-import time
-import vectors_controller.check_status as check_status
+from model_controller import memory as mem_module
+from obj_indices import bucket_parser
 
 load_dotenv(".env")
 
 file_name = "meeting.wav"
-
-bucket = os.getenv("BUCKET_NAME")
-client = os.getenv("CLIENT")
+bucket          = os.getenv("BUCKET_NAME")
+client          = os.getenv("CLIENT")
 raw_bucket_folder = os.getenv("RAW_BUCKET_FOLDER")
-table = os.getenv("TABLE_NAME")
-mock_user_id = "user_456"
-
+table           = os.getenv("TABLE_NAME")
 
 
 if __name__ == "__main__":
-    meta = audio2text.voice_transcript(file_name, bucket, client, raw_bucket_folder, table)
-    raw_id = meta["raw_id"]
-    text_id = meta["text_id"]
-    uri = check_status.wait_for_transcription(text_id, interval_seconds= 20, timeout_seconds= 3600)
-    text2vect.vect_push(raw_id= raw_id, text_id= text_id)
-    query = vectors.search_comprehensive("Thư ký cần làm gì?", raw_id, text_id)
-    print(vectors.pretty_results(query))
 
+    #upload file and push to vect
+    # meta    = audio2text.voice_transcript(file_name, bucket, client, raw_bucket_folder, table)
+    # raw_id  = meta["raw_id"]
+    # text_id = meta["text_id"]
+    # uri     = check_status.wait_for_transcription(text_id, interval_seconds=20, timeout_seconds=3600)
+    # text2vect.vect_push(raw_id=raw_id, text_id=text_id)
+
+    raw_id = "0c961fd3ecde59d8b01fa0ff2c57d7665d11460b22656ac140fe03060e8633b9"
+
+    memory = mem_module.Memory(raw_id=raw_id)
+
+    print("Nhập 'exit' để thoát.\n")
+    while True:
+        question = input("Bạn: ").strip()
+        if not question or question.lower() == "exit":
+            break
+
+        answer = mem_module.chat(memory, question)
+        print(f"\nTrợ lý: {answer}\n")
 
 
 #Phần này để mai t gói vào 1 hàm khác nha.

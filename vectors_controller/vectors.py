@@ -67,7 +67,8 @@ def ingest_document(raw_id, text_id, text: str):
         "responses": responses
     }
 
-def search_comprehensive( question: str, raw_id, text_id=None, top_k: int = 30, final_k: int = 15, distance_threshold: float = 0.65,) -> dict:
+
+def search_comprehensive( question: str, raw_id, text_id=None, top_k: int = 30, final_k: int = 15, distance_threshold: float = 0.7,) -> dict:
 
     raw_id = str(raw_id)
     filters = [{"raw_id": {"$eq": raw_id}}]
@@ -124,6 +125,24 @@ def search_comprehensive( question: str, raw_id, text_id=None, top_k: int = 30, 
         **base_response,
         "vectors": ranked_vectors,
     }
+
+def search_with_filter(question: str, raw_id, text_id, top_k: int = 3):
+        
+        raw_id = str(raw_id)
+        filters = [{"raw_id": {"$eq": raw_id}}]
+        if text_id is not None:
+            filters.append({"text_id": {"$eq": str(text_id)}})
+        query_vec = embedding_convert.embed_texts([question])[0]
+        return s3vectors.query_vectors(
+            vectorBucketName=VECTOR_BUCKET,
+            indexName=INDEX_NAME,
+            queryVector={"float32": query_vec},
+            topK=top_k,
+            returnDistance=True,
+            returnMetadata=True,
+            filter={"$and": filters},
+        )
+
 
 def search_no_filter(question: str, top_k: int = 3):
         query_vec = embedding_convert.embed_texts([question])[0]
