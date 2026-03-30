@@ -6,7 +6,7 @@ import { getAuthToken } from "../utils/auth";
 import { getCurrentUser } from "aws-amplify/auth";
 
 import PageTransition from "../components/PageTransition";
-const API_BASE = "https://1hf3sfyu6g.execute-api.ap-southeast-2.amazonaws.com/";
+const API_BASE = "https://ipiizwxzu2.execute-api.ap-southeast-1.amazonaws.com/dev";
 
 export default function DashboardPage() {
   const fileInputRef = useRef(null);
@@ -335,11 +335,10 @@ export default function DashboardPage() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`rounded-[24px] border border-dashed bg-white px-6 py-8 shadow-sm transition-all duration-200 ${
-                  dragActive
+                className={`rounded-[24px] border border-dashed bg-white px-6 py-8 shadow-sm transition-all duration-200 ${dragActive
                     ? "border-[#5B4CF5] bg-indigo-50/40 shadow-md"
                     : "border-slate-200"
-                }`}
+                  }`}
               >
                 <div className="mx-auto max-w-3xl text-center">
                   <input
@@ -478,13 +477,12 @@ export default function DashboardPage() {
 
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
                           <span
-                            className={`h-1.5 w-1.5 rounded-full ${
-                              String(item.status).toLowerCase() === "completed"
+                            className={`h-1.5 w-1.5 rounded-full ${String(item.status).toLowerCase() === "completed"
                                 ? "bg-emerald-500"
                                 : String(item.status).toLowerCase() === "failed"
                                   ? "bg-red-500"
                                   : "bg-amber-500"
-                            }`}
+                              }`}
                           />
                           {formatStatus(item.status)}
                         </span>
