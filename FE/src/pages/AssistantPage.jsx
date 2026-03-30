@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import AppSidebar from "../components/AppSidebar";
 import PageTransition from "../components/PageTransition";
-import UserMenu from "../components/UserMenu";
+
 import { getAuthToken } from "../utils/auth";
 function formatTime(seconds) {
   if (seconds == null || Number.isNaN(seconds)) return "Now";

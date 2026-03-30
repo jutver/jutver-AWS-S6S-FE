@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { getCurrentUser } from "aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
 import AppSidebar from "../components/AppSidebar";
-import UserMenu from "../components/UserMenu";
+
 import { getAuthToken } from "../utils/auth";
 import PageTransition from "../components/PageTransition";
 const API_BASE = "https://1hf3sfyu6g.execute-api.ap-southeast-2.amazonaws.com/";
