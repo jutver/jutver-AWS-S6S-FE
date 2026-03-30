@@ -220,39 +220,11 @@ export default function DashboardPage() {
         );
       }
 
-      setStepText("Processing.");
+      setStepText("Uploading and Queuing internally.");
 
-      const processUrl = transcriptId
-        ? `${API_BASE}/api/recordings/${recordingId}/process?transcript_id=${encodeURIComponent(transcriptId)}`
-        : `${API_BASE}/api/recordings/${recordingId}/process`;
-
-      const processRes = await fetch(processUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          fileUrl,
-        }),
-      });
-
-      const processText = await processRes.text();
-
-      if (!processRes.ok) {
-        throw new Error(
-          `Gọi process thất bại: HTTP ${processRes.status} - ${processText}`,
-        );
-      }
-
-      let processData;
-      try {
-        processData = JSON.parse(processText);
-      } catch {
-        processData = processText;
-      }
-
-      setProcessResult(processData);
+      // Synthesize the success payload locally since AWS triggers logic automatically via S3 Events
+      const dummyProcessData = { data: { status: "queued" } };
+      setProcessResult(dummyProcessData);
 
       const newItem = {
         recordingId,
@@ -263,7 +235,7 @@ export default function DashboardPage() {
         fileSizeMB,
         duration,
         fileType,
-        status: processData?.data?.status || "queued",
+        status: dummyProcessData.data.status,
         createdAt: new Date().toISOString(),
       };
 
