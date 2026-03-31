@@ -133,7 +133,7 @@ export default function LibraryPage() {
       const userId = currentUser.userId || currentUser.username || "";
 
       const data = await fetchTextOrJson(
-        `${API_BASE}/api/library?user_id=${encodeURIComponent(userId)}&page=1&limit=20`,
+        `${API_BASE}/api/library?page=1&limit=20`,
         { method: "GET" },
       );
 
@@ -353,8 +353,8 @@ export default function LibraryPage() {
                     key={chip.key}
                     onClick={() => setStatusFilter(chip.key)}
                     className={`rounded-full px-4 py-2 text-sm font-medium transition ${statusFilter === chip.key
-                        ? "bg-indigo-100 text-[#5B4CF5]"
-                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      ? "bg-indigo-100 text-[#5B4CF5]"
+                      : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                       }`}
                   >
                     {chip.label}
@@ -405,10 +405,10 @@ export default function LibraryPage() {
                               <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
                                 <span
                                   className={`h-1.5 w-1.5 rounded-full ${item.status === "completed"
-                                      ? "bg-emerald-500"
-                                      : item.status === "failed"
-                                        ? "bg-red-500"
-                                        : "bg-amber-500"
+                                    ? "bg-emerald-500"
+                                    : item.status === "failed"
+                                      ? "bg-red-500"
+                                      : "bg-amber-500"
                                     }`}
                                 />
                                 {item.status?.charAt(0).toUpperCase() +
